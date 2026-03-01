@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VOICE AI - Pro Voice Studio</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FontAwesome untuk Ikon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- LameJS untuk konversi MP3 -->
+    <script src="https://cdn.jsdelivr.net/npm/lamejs@1.2.1/lame.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        /* Custom scrollbar untuk textarea */
+        textarea::-webkit-scrollbar {
+            width: 8px;
+        }
+        textarea::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 4px;
+        }
+        textarea::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+        }
+        textarea::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 0, 0, 0.4);
+        }
+    </style>
+</head>
+<body class="bg-green-400/10 min-h-screen flex items-center justify-center p-4 text-black antialiased">
+
+    <!-- Wadah Utama dengan efek Glassmorphism -->
+    <main class="w-full max-w-md bg-white/60 backdrop-blur-xl border border-white/50 rounded-2xl shadow-[0_8px_32px_rgba(22,163,74,0.1)] p-6 md:p-8 flex flex-col gap-6 relative overflow-hidden">
+        
+        <!-- Header -->
+        <header class="text-center relative z-10">
+            <h1 class="text-3xl font-bold text-black tracking-tight">VOICE AI</h1>
+            <p class="text-[10px] font-semibold tracking-[0.2em] text-black mt-1 uppercase opacity-80">Studio Suara AI Profesional</p>
+        </header>
+
+        <div class="space-y-5 relative z-10">
+            <!-- Kategori Suara (Segmented Control) -->
+            <div>
+                <label class="block text-xs font-semibold text-black mb-2 uppercase tracking-wide">Kategori Suara</label>
+                <div class="flex bg-black/5 p-1 rounded-xl shadow-inner border border-black/10">
+                    <button type="button" class="category-btn flex-1 py-2 text-sm rounded-lg transition-all text-black/60 hover:text-black hover:bg-black/5" data-category="pria">
+                        <i class="fas fa-male mr-1 text-blue-400"></i> Pria
+                    </button>
+                    <!-- Pilihan standar: Wanita -->
+                    <button type="button" class="category-btn flex-1 py-2 text-sm rounded-lg transition-all bg-white text-black font-bold shadow-sm border border-white" data-category="wanita">
+                        <i class="fas fa-female mr-1 text-pink-400"></i> Wanita
+                    </button>
+                    <button type="button" class="category-btn flex-1 py-2 text-sm rounded-lg transition-all text-black/60 hover:text-black hover:bg-black/5" data-category="anak">
+                        <i class="fas fa-child mr-1 text-yellow-400"></i> Anak
+                    </button>
+                </div>
+            </div>
+
+            <!-- Karakter Spesifik -->
+            <div>
+                <label class="block text-xs font-semibold text-black mb-2 uppercase tracking-wide">Karakter Spesifik</label>
+                <div class="relative">
+                    <select id="voiceSelect" class="w-full appearance-none p-3.5 pr-10 rounded-xl bg-white/70 border border-black/20 text-black text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all shadow-sm cursor-pointer">
+                        <option value="leda">Leda (Elegan)</option>
+                        <option value="callirrhoe">Callirrhoe (Formal)</option>
+                        <option value="aoede" selected>Aoede (Ceria)</option>
+                        <option value="kore">Kore (Lembut)</option>
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-black">
+                        <i class="fas fa-chevron-down text-gray-500 text-xs"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gaya & Ekspresi -->
+            <div>
+                <label class="block text-xs font-semibold text-black mb-2 uppercase tracking-wide">Gaya & Ekspresi</label>
+                <div class="relative">
+                    <select id="styleInput" class="w-full appearance-none p-3.5 pr-10 rounded-xl bg-white/70 border border-black/20 text-black text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all shadow-sm cursor-pointer">
+                        <option value="">Netral</option>
+                        <option value="a Javanese medhok accent">Jawa Medhok</option>
+                        <option value="a Sundanese accent">Aksen Sunda</option>
+                        <option value="an American accent">Aksen Amerika</option>
+                        <option value="a happy and cheerful tone">Gembira</option>
+                        <option value="a sad tone">Sedih</option>
+                        <option value="a whispering voice">Berbisik</option>
+                        <option value="a firm and assertive tone">Tegas</option>
+                        <option value="an angry tone">Marah</option>
+                        <option value="an authoritative tone">Berwibawa</option>
+                        <option value="a cutesy tone">Manja</option>
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-black">
+                        <i class="fas fa-chevron-down text-gray-500 text-xs"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card Tips Pro -->
+            <div class="bg-green-50/80 border border-green-200/60 p-4 rounded-xl shadow-sm flex items-start gap-3">
+                <i class="fas fa-lightbulb text-yellow-500 mt-0.5"></i>
+                <div>
+                    <h4 class="text-xs font-bold text-black mb-1">TIPS PRO</h4>
+                    <p class="text-xs italic text-black leading-relaxed">
+                        "Gunakan naskah yang singkat dan sederhana untuk suara balita agar terdengar lebih natural dan menggemaskan."
+                    </p>
+                </div>
+            </div>
+
+            <!-- Teks Input -->
+            <div>
+                <label class="block text-xs font-semibold text-black mb-2 uppercase tracking-wide flex items-center">
+                    <i class="fas fa-align-left mr-1.5 text-gray-500 text-sm"></i> Teks Input
+                </label>
+                <textarea id="scriptText" maxlength="1000" rows="5" placeholder="Ketik di sini..." class="w-full p-4 rounded-xl bg-white/70 border border-black/20 text-black text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all shadow-sm resize-none placeholder-black/40"></textarea>
+                <div class="flex justify-between items-center mt-2">
+                    <span id="statusText" class="text-[11px] text-black font-medium">Siap berkarya...</span>
+                    <span id="charCount" class="text-[11px] font-medium text-black bg-black/5 px-2 py-0.5 rounded-md border border-black/10">0/1000</span>
+                </div>
+            </div>
+            
+            <!-- Tombol Aksi -->
+            <div class="space-y-3 pt-2">
+                <button id="generateBtn" class="w-full py-3.5 rounded-xl bg-green-500 hover:bg-green-600 text-black font-bold shadow-[0_4px_14px_0_rgba(22,163,74,0.39)] hover:shadow-[0_6px_20px_rgba(22,163,74,0.23)] transform transition-all active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+                    <i class="fas fa-volume-up text-yellow-300"></i> Generate Suara
+                </button>
+                
+                <button id="saveBtn" disabled class="w-full py-3 rounded-xl bg-white/50 text-black/40 font-semibold border border-black/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+                    <i class="fas fa-download"></i> Simpan MP3
+                </button>
+            </div>
+
+            <!-- Area Pemutar Suara (Hidden by default) -->
+            <div id="playerSection" class="hidden mt-4 pt-4 border-t border-black/10">
+                <p class="text-[10px] font-bold text-center text-black mb-3 uppercase tracking-widest">Preview Player</p>
+                <div class="bg-white/80 rounded-full p-2 shadow-sm border border-black/10">
+                    <!-- Elemen Audio -->
+                    <audio id="audioPlayer" controls class="w-full h-10 outline-none">
+                        Browser Anda tidak mendukung elemen audio.
+                    </audio>
+                </div>
+                <p class="text-center text-[10px] text-black mt-2 font-medium">Suara berhasil dibuat!</p>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="text-center mt-4 relative z-10 space-y-1">
+            <p class="text-[9px] font-medium text-black">Audio diproses real-time &bull; Kompresi MP3 Aktif</p>
+            <p class="text-[10px] font-bold tracking-[0.2em] text-black uppercase">&copy; DOHENS 2026</p>
+        </footer>
+    </main>
+
+    <!-- Logika JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Deklarasi Elemen
+            const scriptText = document.getElementById('scriptText');
+            const charCount = document.getElementById('charCount');
+            const statusText = document.getElementById('statusText');
+            const generateBtn = document.getElementById('generateBtn');
+            const saveBtn = document.getElementById('saveBtn');
+            const playerSection = document.getElementById('playerSection');
+            const categoryBtns = document.querySelectorAll('.category-btn');
+            const inputs = document.querySelectorAll('input, select, textarea');
+
+            // Data Suara Berdasarkan Kategori
+            const voiceData = {
+                pria: [
+                    { value: 'fenrir', text: 'Fenrir (Deep/Naratif)' },
+                    { value: 'charon', text: 'Charon (Tegas)' },
+                    { value: 'orus', text: 'Orus (Berwibawa)' },
+                    { value: 'iapetus', text: 'Iapetus (Santai)' }
+                ],
+                wanita: [
+                    { value: 'leda', text: 'Leda (Elegan)' },
+                    { value: 'callirrhoe', text: 'Callirrhoe (Formal)' },
+                    { value: 'aoede', text: 'Aoede (Ceria)' },
+                    { value: 'kore', text: 'Kore (Lembut)' }
+                ],
+                anak: [
+                    { value: 'puck', text: 'Puck (Anak Laki-laki)' },
+                    { value: 'zephyr', text: 'Zephyr (Anak Perempuan)' }
+                ]
+            };
+
+            // 1. Logika Segmented Control (Kategori Suara)
+            categoryBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    // Hapus state aktif dari semua tombol
+                    categoryBtns.forEach(b => {
+                        b.classList.remove('bg-white', 'font-bold', 'shadow-sm', 'border-white');
+                        b.classList.add('text-black/60', 'hover:text-black', 'hover:bg-black/5');
+                    });
+                    
+                    // Tambahkan state aktif ke tombol yang diklik
+                    btn.classList.remove('text-black/60', 'hover:text-black', 'hover:bg-black/5');
+                    btn.classList.add('bg-white', 'text-black', 'font-bold', 'shadow-sm', 'border-white');
+
+                    // Perbarui daftar dropdown Karakter Spesifik
+                    const category = btn.getAttribute('data-category');
+                    const voiceSelect = document.getElementById('voiceSelect');
+                    voiceSelect.innerHTML = ''; // Kosongkan daftar sebelumnya
+                    
+                    voiceData[category].forEach(voice => {
+                        const option = document.createElement('option');
+                        option.value = voice.value;
+                        option.textContent = voice.text;
+                        // Set pilihan default untuk tiap kategori
+                        if (voice.value === 'aoede' || voice.value === 'fenrir' || voice.value === 'puck') {
+                            option.selected = true;
+                        }
+                        voiceSelect.appendChild(option);
+                    });
+                });
+            });
+
+            // 2. Logika Penghitung Karakter (Character Counter)
+            scriptText.addEventListener('input', (e) => {
+                const currentLength = e.target.value.length;
+                charCount.textContent = `${currentLength}/1000`;
+                
+                if(currentLength > 0) {
+                    statusText.textContent = "Sedang mengetik...";
+                    statusText.classList.add('opacity-60');
+                } else {
+                    statusText.textContent = "Siap berkarya...";
+                    statusText.classList.remove('opacity-60');
+                }
+            });
+
+            // --- FUNGSI BANTUAN UNTUK AUDIO (Ubah PCM API ke MP3) ---
+            function pcmToMp3(pcmData, sampleRate) {
+                const samples = new Int16Array(pcmData);
+                const mp3encoder = new lamejs.Mp3Encoder(1, sampleRate, 128); // 1 Channel (Mono), sample rate, 128kbps bitrate
+                const mp3Data = [];
+                const sampleBlockSize = 1152;
+
+                for (let i = 0; i < samples.length; i += sampleBlockSize) {
+                    const sampleChunk = samples.subarray(i, i + sampleBlockSize);
+                    const mp3buf = mp3encoder.encodeBuffer(sampleChunk);
+                    if (mp3buf.length > 0) {
+                        mp3Data.push(mp3buf);
+                    }
+                }
+                const mp3buf = mp3encoder.flush();
+                if (mp3buf.length > 0) {
+                    mp3Data.push(mp3buf);
+                }
+
+                return new Blob(mp3Data, { type: 'audio/mp3' });
+            }
+            // --------------------------------------------------------
+
+            // 3. Logika Generate Suara dengan Gemini TTS API Asli
+            generateBtn.addEventListener('click', async () => {
+                const textValue = scriptText.value.trim();
+                
+                // Validasi teks kosong
+                if(textValue === '') {
+                    scriptText.classList.add('animate-pulse', 'border-black');
+                    setTimeout(() => { scriptText.classList.remove('animate-pulse', 'border-black'); }, 500);
+                    scriptText.focus();
+                    return;
+                }
+
+                playerSection.classList.add('hidden');
+                
+                generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin text-yellow-300"></i> Memproses Suara...';
+                generateBtn.disabled = true;
+                
+                inputs.forEach(input => input.disabled = true);
+                saveBtn.disabled = true;
+                saveBtn.className = "w-full py-3 rounded-xl bg-white/50 text-black/40 font-semibold border border-black/20 transition-all flex items-center justify-center gap-2 cursor-not-allowed";
+                
+                statusText.textContent = "AI sedang mensintesis suara...";
+                statusText.classList.add('animate-pulse');
+
+                try {
+                    const apiKey = ""; // Hanya untuk testing di Canvas. Di produksi, ini tidak digunakan.
+                    
+                    // --- KONFIGURASI SERVER PERANTARA (PROXY) ---
+                    // Ubah menjadi 'true' jika Anda sudah mengunggah file ke Vercel/Server Anda.
+                    // Saat 'false', aplikasi akan tetap berfungsi normal di Canvas ini.
+                    const isProduction = true; 
+
+                    const selectedVoice = document.getElementById('voiceSelect').value;
+                    const voiceName = selectedVoice.charAt(0).toUpperCase() + selectedVoice.slice(1);
+                    
+                    const styleInput = document.getElementById('styleInput').value;
+                    const promptText = styleInput ? `Say with ${styleInput}: ${textValue}` : textValue;
+
+                    // Logika Proxy: Jika produksi, panggil URL server Anda. Jika tidak, panggil Google.
+                    const url = isProduction 
+                        ? '/api/tts' // Endpoint Backend/Proxy Anda
+                        : `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`;
+                    
+                    const payload = {
+                        contents: [{ parts: [{ text: promptText }] }],
+                        generationConfig: {
+                            responseModalities: ["AUDIO"],
+                            speechConfig: {
+                                voiceConfig: { prebuiltVoiceConfig: { voiceName: voiceName } }
+                            }
+                        }
+                    };
+
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) throw new Error('Gagal menghubungi API');
+                    
+                    const result = await response.json();
+                    const audioPart = result.candidates?.[0]?.content?.parts?.[0]?.inlineData;
+                    
+                    if (!audioPart) throw new Error('Data audio tidak ditemukan');
+
+                    // Decode base64
+                    const binaryString = atob(audioPart.data);
+                    const len = binaryString.length;
+                    const pcmBytes = new Uint8Array(len);
+                    for (let i = 0; i < len; i++) {
+                        pcmBytes[i] = binaryString.charCodeAt(i);
+                    }
+
+                    // Dapatkan sample rate
+                    let sampleRate = 24000;
+                    const match = audioPart.mimeType.match(/rate=(\d+)/);
+                    if (match) sampleRate = parseInt(match[1], 10);
+
+                    // Buat file Audio MP3
+                    const mp3Blob = pcmToMp3(pcmBytes.buffer, sampleRate);
+                    const audioUrl = URL.createObjectURL(mp3Blob);
+                    
+                    // Putar audionya
+                    const audioPlayer = document.getElementById('audioPlayer');
+                    audioPlayer.src = audioUrl;
+
+                    statusText.textContent = "Suara berhasil dibuat!";
+                    statusText.classList.remove('animate-pulse');
+                    
+                    playerSection.classList.remove('hidden');
+                    playerSection.classList.add('animate-[fadeIn_0.5s_ease-out]');
+                    
+                    saveBtn.disabled = false;
+                    saveBtn.className = "w-full py-3 rounded-xl bg-white hover:bg-green-50 text-black font-bold border border-green-200 shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer hover:shadow-md";
+                    
+                    // Logika untuk mengunduh audio
+                    saveBtn.onclick = () => {
+                        const a = document.createElement('a');
+                        a.href = audioUrl;
+                        a.download = `VocalizeAI_${new Date().getTime()}.mp3`;
+                        a.click();
+                        
+                        const originalText = saveBtn.innerHTML;
+                        saveBtn.innerHTML = '<i class="fas fa-check text-green-500"></i> Berhasil Diunduh';
+                        setTimeout(() => { saveBtn.innerHTML = originalText; }, 2000);
+                    };
+
+                } catch (error) {
+                    console.error(error);
+                    statusText.textContent = "Gagal membuat suara. Coba sesaat lagi.";
+                    statusText.classList.remove('animate-pulse');
+                    statusText.classList.add('font-bold');
+                } finally {
+                    generateBtn.innerHTML = '<i class="fas fa-volume-up text-yellow-300"></i> Generate Suara';
+                    generateBtn.disabled = false;
+                    inputs.forEach(input => input.disabled = false);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
